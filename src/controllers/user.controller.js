@@ -23,17 +23,18 @@ const registerUser = asyncHandler( async(req, res) =>{
     throw new ApiError(409, "All Fields are required")
   }
   
+  const findUser = await User.findOne({
+    $or: [{ email }, { username }]
+  })
+
+  console.log(findUser)
+
+  if(findUser) throw new ApiError(400, "User Already Registered: ")
+  
   console.log("Before upload")
   const avatarLocalPath = await uploadOnCloudinary(req.files.avatar[0].path);
   const coverImageLocalPath = await uploadOnCloudinary(req.files.coverImage[0].path);
   console.log("After upload")
-
-  const findUser = User.findOne({
-    $or: [{ email }, { username }]
-  })
-
-  console.log(findUser.schema.obj)
-  if(findUser) throw new ApiError(400, "User Already Registered: ")
 
   const registeredUser = await User.create({
     username,
