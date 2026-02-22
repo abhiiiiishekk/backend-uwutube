@@ -1,7 +1,7 @@
 /*
 * this asyncHandler function accepts a function as a parameter
 * pass it to async function with parameter like req, res, next
-* this function awaits and executes the parameter function and 
+* parameter function awaits and executes the parameter function and 
 */
 
 const asyncHandler = (fn) => 
