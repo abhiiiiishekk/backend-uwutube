@@ -7,17 +7,24 @@ import { User } from "../models/user.model.js";
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
+    console.log(`Inside generate: ${user}`);
+    
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
 
     user.refreshToken = refreshToken;
+    // user.accessToken = accessToken;
+    console.log(`Access Token ${accessToken}`);
+    console.log(`Refresh Token ${refreshToken}`);
+    
     await user.save({ validateBeforeSave: false });
-
+    console.log("After save");
+    
     return { accessToken, refreshToken };
   } catch (error) {
     throw new ApiError(
       500,
-      "Something went wrong while generating refresth and access token"
+      "Something went wrong while generating refresth and access token: "+error
     );
   }
 };
@@ -86,15 +93,19 @@ const loginUser = asyncHandler(async (req, res) => {
    * send cookie to the user browser
    * logged the user in successfully
    */
-
-  const { username, email, password } = req.body;
-  if (!username || !email) {
-    throw new ApiError(404, "Username or Email is required");
+  
+  const { email, password } = req.body;
+  const username = req.body?.username;
+  console.log(`Email ${email}`);
+  
+  if (!email) {
+    throw new ApiError(404, "Email is required");
   }
   const findUser = await User.findOne({
     $or: [{ email }, { username }],
   });
-
+  console.log(`find user: ${findUser}`);
+  
   if (!findUser) throw new ApiError(400, "User doesn't exist");
 
   const isPassValid = await findUser.isPasswordCorrect(password);
